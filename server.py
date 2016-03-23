@@ -16,38 +16,46 @@ ALLOWED_EXTENSIONS = set(["docx", "doc", "xls", "xlsm", "odt", "ods"])
 FILE_TIMEOUT = 600
 
 class TimeSet(set):
+    """Starts a thread for each item"""
     def add(self, item, timeout):
         set.add(self, item)
         thread = Thread(target=timeout_set_remove, args=(self, item, timeout))
         thread.start()
 
 def timeout_set_remove(_set, item, timeout):
+    """Removes item after timeout"""
     sleep(timeout)
     print("Deleting " + str(item))
     rmtree(str(item))
     _set.remove(item)
 
 def allowed_file(filename):
+    """Checks if file with filename is allowed"""
     return "." in filename and filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
 app.config["FILE_TIMEOUT"] = FILE_TIMEOUT
-app.file_timeouts = TimeSet()
+app.file_timeouts = TimeSet() # manages uploaded file timeouts
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         file = request.files["file"]
         if file and allowed_file(file.filename):
+            # saving file to temporary dir
             filename = secure_filename(file.filename)
             tmp_dir = mkdtemp()
             file.save(path.join(tmp_dir, filename))
+            # adding delayed delete to tmp dir
             app.file_timeouts.add(tmp_dir, app.config["FILE_TIMEOUT"])
+            # converting  file
             call = ["lobase", "--convert-to", "pdf",
                  path.join(tmp_dir, filename), "--outdir", tmp_dir]
             subprocess.check_call(call)
+            #redirecting to new file
             new_filename = filename.rsplit(".", 1)[0] + ".pdf"
             return redirect(url_for("download", filename=new_filename, dirname=path.basename(tmp_dir)))
+    # if any error occurs or in case of a GET request render start page
     return render_template("index.html", extensions=", ".join(ALLOWED_EXTENSIONS))
 
 @app.route("/download/?file=<filename>&dir=<dirname>", methods=["GET"])
