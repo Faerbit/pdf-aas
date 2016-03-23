@@ -34,6 +34,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
+app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["FILE_TIMEOUT"] = FILE_TIMEOUT
 app.file_timeouts = TimeSet() # manages uploaded file timeouts
 
