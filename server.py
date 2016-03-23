@@ -5,14 +5,15 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from threading import Thread
 from time import sleep
+import subprocess
 
-from flask import (Flask, render_template, request, 
+from flask import (Flask, render_template, request,
     redirect, url_for, send_from_directory)
 from werkzeug import secure_filename
 
 #settings
 ALLOWED_EXTENSIONS = set(["docx", "doc", "xls", "xlsm", "odt", "ods"])
-FILE_TIMEOUT = 30
+FILE_TIMEOUT = 600
 
 class TimeSet(set):
     def add(self, item, timeout):
@@ -42,7 +43,11 @@ def index():
             tmp_dir = mkdtemp()
             file.save(path.join(tmp_dir, filename))
             app.file_timeouts.add(tmp_dir, app.config["FILE_TIMEOUT"])
-            return redirect(url_for("download", filename=filename, dirname=path.basename(tmp_dir)))
+            call = ["lobase", "--convert-to", "pdf",
+                 path.join(tmp_dir, filename), "--outdir", tmp_dir]
+            subprocess.check_call(call)
+            new_filename = filename.rsplit(".", 1)[0] + ".pdf"
+            return redirect(url_for("download", filename=new_filename, dirname=path.basename(tmp_dir)))
     return render_template("index.html", extensions=", ".join(ALLOWED_EXTENSIONS))
 
 @app.route("/download/?file=<filename>&dir=<dirname>", methods=["GET"])
@@ -52,4 +57,4 @@ def download(filename, dirname):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(host="192.168.1.167")
+    app.run()

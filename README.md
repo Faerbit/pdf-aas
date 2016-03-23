@@ -1,6 +1,6 @@
 #PDF as a Service (PDF-aaS)
 
-Little webservice which converts office documents to PDF files using `lowriter`
+Little webservice which converts office documents to PDF files using `lobase`
 from LibreOffice.
 
 ##License
