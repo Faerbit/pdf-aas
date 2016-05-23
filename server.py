@@ -51,7 +51,7 @@ def index():
             app.file_timeouts.add(tmp_dir, app.config["FILE_TIMEOUT"])
             # converting  file
             call = ["unoconv", "-f", "pdf",
-                 path.join(tmp_dir, filename), "-o", tmp_dir]
+                "-o", tmp_dir, path.join(tmp_dir, filename)]
             subprocess.check_call(call)
             #redirecting to new file
             new_filename = filename.rsplit(".", 1)[0] + ".pdf"
