@@ -49,15 +49,18 @@ def index():
             file.save(path.join(tmp_dir, filename))
             # adding delayed delete to tmp dir
             app.file_timeouts.add(tmp_dir, app.config["FILE_TIMEOUT"])
+            new_filename = filename.rsplit(".", 1)[0] + ".pdf"
             # converting  file
             call = ["unoconv", "-f", "pdf",
-                "-o", tmp_dir, path.join(tmp_dir, filename)]
+                "-o", path.join(tmp_dir, new_filename,
+                    path.join(tmp_dir, filename)]
             subprocess.check_call(call)
             #redirecting to new file
-            new_filename = filename.rsplit(".", 1)[0] + ".pdf"
-            return redirect(url_for("download", filename=new_filename, dirname=path.basename(tmp_dir)))
+            return redirect(url_for("download", filename=new_filename,
+                dirname=path.basename(tmp_dir)))
     # if any error occurs or in case of a GET request render start page
-    return render_template("index.html", extensions=", ".join(ALLOWED_EXTENSIONS))
+    return render_template("index.html",
+            extensions=", ".join(ALLOWED_EXTENSIONS))
 
 @app.route("/download/?file=<filename>&dir=<dirname>", methods=["GET"])
 def download(filename, dirname):
