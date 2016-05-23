@@ -52,7 +52,7 @@ def index():
             new_filename = filename.rsplit(".", 1)[0] + ".pdf"
             # converting  file
             call = ["unoconv", "-f", "pdf",
-                "-o", path.join(tmp_dir, new_filename,
+                "-o", path.join(tmp_dir, new_filename),
                     path.join(tmp_dir, filename)]
             subprocess.check_call(call)
             #redirecting to new file
