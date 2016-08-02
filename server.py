@@ -12,7 +12,7 @@ from flask import (Flask, render_template, request,
 from werkzeug import secure_filename
 
 #settings
-ALLOWED_EXTENSIONS = set(["docx", "doc", "xls", "xlsm", "odt", "ods"])
+ALLOWED_EXTENSIONS = set(["docx", "doc", "xls", "xlsm", "xlsx", "odt", "ods"])
 FILE_TIMEOUT = 600
 
 class TimeSet(set):
